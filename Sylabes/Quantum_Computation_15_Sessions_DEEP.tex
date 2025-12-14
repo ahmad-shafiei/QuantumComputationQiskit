@@ -1,0 +1,1097 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{physics}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{minted}
+
+\geometry{margin=2.5cm}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+\title{Quantum Computation -- 15-Session Course}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+
+This document provides a **complete, teaching-ready syllabus** for a 15-session course on **Quantum Computation**.  
+Each session includes:
+
+\begin{itemize}
+\item Learning Objectives
+\item Core Concepts / Outline
+\item Theory & Intuition
+\item Examples
+\item In-Class Exercises
+\item Homework
+\item Python/Qiskit Coding Suggestions
+\item Suggested Figures (Bloch sphere, circuits, etc.)
+
+\end{itemize}
+You can use this as:
+\begin{itemize}
+\item A printable handout for students
+\item A base to create slides
+\item A structure for designing assignments and exams
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 1: Introduction & Mathematical Foundations}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Explain why quantum computation is interesting and potentially powerful.
+\item Distinguish classical bits from quantum bits (qubits).
+\item Describe the notion of a quantum state as a complex vector.
+\item Understand basic linear algebra notions: vectors, norms, inner products.
+\item Install Python and Qiskit, and run a minimal quantum circuit.
+
+\subsection{Core Concepts / Outline}
+\item Motivation: limitations of classical computing, Moore’s law, new applications.
+\item Bits vs. Qubits.
+\item State vectors and the 2D complex vector space for a single qubit.
+\item Normalization and probabilities.
+\item Tensor products (conceptual preview).
+\item Overview of the circuit model of quantum computation.
+\item Tooling: Python, Qiskit, and simulators.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Classical computation is based on **bits** that can take values 0 or 1. A classical register of \(n\) bits can be in exactly one of \(2^n\) possible states at any time.  
+
+In contrast, a **qubit** is described by a **normalized complex 2D vector**:
+\[
+\lvert \psi \rangle = \alpha \lvert 0 \rangle + \beta \lvert 1 \rangle,\quad \text{with } |\alpha|^2 + |\beta|^2 = 1.
+\]
+Here, \(\lvert 0 \rangle = \begin{pmatrix}1 \\ 0\end{pmatrix}\) and \(\lvert 1 \rangle = \begin{pmatrix}0 \\ 1\end{pmatrix}\).  
+
+The squared magnitudes \(|\alpha|^2\) and \(|\beta|^2\) represent measurement probabilities in the computational basis. The fact that a qubit can be in a **superposition** of basis states enables new kinds of computation.
+
+\subsection{Example}
+Consider the state:
+\[
+\lvert \psi \rangle = \frac{1}{\sqrt{2}} \lvert 0 \rangle + \frac{1}{\sqrt{2}} \lvert 1 \rangle.
+\]
+The probabilities of measuring 0 or 1 are both \(1/2\). This is analogous to a fair coin, but represented as a quantum state.
+
+\subsection{In-Class Exercises}
+1. Represent the states \(|0\rangle\), \(|1\rangle\), and \((|0\rangle + |1\rangle)/\sqrt{2}\) as column vectors.  
+2. Verify normalization for several example states.  
+3. Discuss qualitatively how a 2-qubit system would be represented (preview of tensor products).
+
+\subsection{Homework}
+1. Normalize the state
+   \[
+   \lvert \phi \rangle = 2 \lvert 0 \rangle + 3 \lvert 1 \rangle,
+   \]
+   and compute measurement probabilities.  
+2. Write a short paragraph explaining, in your own words, the difference between a classical bit and a qubit.  
+3. Install Python and Qiskit on your computer and run the sample code below. Take a screenshot of the output.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+# Minimal Qiskit example: single-qubit Hadamard and measurement
+from qiskit import QuantumCircuit, Aer, execute
+
+# Create a circuit with 1 qubit and 1 classical bit
+qc = QuantumCircuit(1, 1)
+
+# Apply a Hadamard gate to create superposition
+qc.h(0)
+
+# Measure the qubit
+qc.measure(0, 0)
+
+# Simulate the circuit
+backend = Aer.get_backend('qasm_simulator')
+job = execute(qc, backend, shots=1024)
+result = job.result()
+counts = result.get_counts()
+
+print("Circuit:")
+print(qc)
+print("Measurement counts:", counts)
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item **Conceptual diagram**: Classical bit vs. qubit (bit as a two-state system, qubit as a vector in a 2D complex space).
+\item **Vector diagram**: Show \(|0\rangle\) and \(|1\rangle\) as orthogonal basis vectors.
+\item **Simple circuit**: One-qubit circuit with an H gate followed by a measurement:
+\begin{minted}[fontsize=\small]{text}
+  q0: ──H──■──
+           │
+  c0: ─────┼──
+\end{minted}
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 2: Linear Algebra, Dirac Notation & Operators}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Recall the main concepts of linear algebra used in quantum mechanics.
+\item Work with inner products, norms, and orthonormal bases.
+\item Understand Dirac (bra-ket) notation.
+\item Recognize unitary and Hermitian matrices and their roles in quantum computing.
+
+\subsection{Core Concepts / Outline}
+\item Vector spaces and basis vectors.
+\item Inner product and norm.
+\item Orthonormal bases.
+\item Dirac notation: kets, bras, and bra-ket products.
+\item Unitary and Hermitian operators.
+\item Global phase vs. relative phase.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Quantum states live in **complex vector spaces** (Hilbert spaces). An **inner product** allows us to define angles and lengths in this space:
+\[
+\langle \phi | \psi \rangle = \sum_i \phi_i^* \psi_i.
+\]
+
+In **Dirac notation**, kets \(|\psi\rangle\) represent column vectors, while bras \(\langle \psi|\) represent row vectors of complex conjugates. The inner product is written as \(\langle \phi|\psi\rangle\).
+
+**Unitary operators** \(U\) (with \(U^\dagger U = I\)) represent valid quantum evolutions; they preserve norms and thus total probability. **Hermitian operators** are observables (measurable quantities) in quantum mechanics.
+
+A key point is that **global phase** has no physical effect:
+\[
+|\psi\rangle \text{ and } e^{i\theta}|\psi\rangle
+\]
+represent the same physical state.
+
+\subsection{Example}
+Show that the Hadamard gate
+\[
+H = \frac{1}{\sqrt{2}}\begin{pmatrix}1 & 1 \\ 1 & -1\end{pmatrix}
+\]
+is unitary by verifying \(H^\dagger H = I\).
+
+\subsection{In-Class Exercises}
+1. Compute \(\langle 0|1\rangle\), \(\langle 1|1\rangle\), and \(\langle +|+\rangle\), where \(|+\rangle = (|0\rangle + |1\rangle)/\sqrt{2}\).  
+2. Given a 2×2 matrix, determine whether it is unitary.  
+3. Show that multiplying a state by a global phase does not affect measurement probabilities.
+
+\subsection{Homework}
+1. For an arbitrary normalized qubit state \(|\psi\rangle = \alpha |0\rangle + \beta |1\rangle\), compute  
+   \(\langle \psi|\psi \rangle\) and confirm that it equals 1.  
+2. Read a short section on Dirac notation from your main textbook and summarize key points in half a page.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+import numpy as np
+
+# Define basis states
+zero = np.array([[1], [0]], dtype=complex)
+one  = np.array([[0], [1]], dtype=complex)
+
+# Define Hadamard
+H = (1/np.sqrt(2)) * np.array([[1, 1],
+                               [1, -1]], dtype=complex)
+
+# Verify unitarity: H† H
+identity_check = H.conj().T @ H
+print("H^† H =")
+print(identity_check)
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item A diagram showing bras and kets as row and column vectors.
+\item Illustration of orthonormal basis vectors (like x and y axes in 2D).
+\item A box summarizing properties of unitary and Hermitian matrices.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 3: Qubits and the Bloch Sphere}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Describe the Bloch sphere representation of a single qubit.
+\item Map a general qubit state to Bloch sphere coordinates (θ, φ).
+\item Understand the geometric interpretation of quantum states.
+\item Relate rotations on the Bloch sphere to quantum gates.
+
+\subsection{Core Concepts / Outline}
+\item General form of a 1-qubit state:
+\end{itemize}
+  \(|\psi\rangle = \alpha|0\rangle + \beta|1\rangle\).
+\begin{itemize}
+\item Parametrization:
+\end{itemize}
+  \(|\psi\rangle = \cos(\theta/2)|0\rangle + e^{i\phi}\sin(\theta/2)|1\rangle\).
+\begin{itemize}
+\item Bloch sphere: mapping to (x, y, z) on the unit sphere.
+\item Poles and equator: |0⟩, |1⟩, |+⟩, |−⟩.
+\item Geometric action of single-qubit gates as rotations.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Any normalized qubit state can be written as:
+\[
+|\psi\rangle = \cos(\theta/2)|0\rangle + e^{i\phi}\sin(\theta/2)|1\rangle,
+\]
+for some real angles \(\theta \in [0,\pi]\) and \(\phi \in [0, 2\pi)\), ignoring global phase.  
+We define Bloch coordinates:
+\[
+x = \sin\theta \cos\phi,\quad
+y = \sin\theta \sin\phi,\quad
+z = \cos\theta.
+\]
+These coordinates describe a point on the **unit sphere**, called the **Bloch sphere**.  
+
+Common states:
+\begin{itemize}
+\item \(|0\rangle\): north pole (0, 0, 1)
+\item \(|1\rangle\): south pole (0, 0, −1)
+\item \(|+\rangle = (|0\rangle + |1\rangle)/\sqrt{2}\): point on the +x axis
+\item \(|-\rangle = (|0\rangle - |1\rangle)/\sqrt{2}\): point on the −x axis
+
+\end{itemize}
+Single-qubit gates effect rotations of this Bloch vector.
+
+\subsection{Example}
+Take \(|\psi\rangle = (|0\rangle + i|1\rangle)/\sqrt{2}\).  
+Express \(|\psi\rangle\) in the parametrized form and find its Bloch sphere coordinates.
+
+\subsection{In-Class Exercises}
+1. Write down Bloch sphere coordinates for \(|0\rangle\), \(|1\rangle\), \(|+\rangle\), \(|-\rangle\), and \((|0\rangle + i|1\rangle)/\sqrt{2}\).  
+2. Discuss intuitively what applying H, X, Z does to points on the Bloch sphere.
+
+\subsection{Homework}
+1. Prove that every pure qubit state corresponds to exactly one point on the Bloch sphere (up to global phase).  
+2. Derive the expression for x, y, z in terms of α and β.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit.visualization import plot_bloch_vector
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Example: |+> state
+theta = np.pi/2
+phi = 0
+x = np.sin(theta) * np.cos(phi)
+y = np.sin(theta) * np.sin(phi)
+z = np.cos(theta)
+
+fig = plot_bloch_vector([x, y, z])
+plt.show()
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item **Bloch sphere diagram**:
+\item North pole labeled |0⟩, south pole |1⟩.
+\item Equator showing |+⟩ and |−⟩.
+\item A generic state |ψ⟩ with angles θ and φ indicated.
+\item **Gate action sketches**:
+\item X gate: 180° rotation around x-axis.
+\item Z gate: 180° rotation around z-axis.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 4: Single-Qubit Gates and Rotations}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Identify and use standard single-qubit gates (X, Y, Z, H, S, T).
+\item Represent these gates as matrices and understand their effects.
+\item Relate certain gates to rotations on the Bloch sphere.
+\item Build basic 1-qubit circuits and reason about their outputs.
+
+\subsection{Core Concepts / Outline}
+\item Pauli gates: X, Y, Z.
+\item Hadamard gate H and its role in creating superposition.
+\item Phase gates S and T.
+\item Rotation gates: Rx(θ), Ry(θ), Rz(θ).
+\item Gate identities and simple compositions (e.g., HZH = X).
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Single-qubit gates correspond to **unitary 2×2 matrices**. For example:
+\[
+X = \begin{pmatrix}0 & 1 \\ 1 & 0\end{pmatrix},\quad
+Z = \begin{pmatrix}1 & 0 \\ 0 & -1\end{pmatrix}.
+\]
+The Hadamard gate creates superposition:
+\[
+H |0\rangle = \frac{|0\rangle + |1\rangle}{\sqrt{2}},\quad
+H |1\rangle = \frac{|0\rangle - |1\rangle}{\sqrt{2}}.
+\]
+
+Rotation gates such as \(R_x(\theta)\) correspond to rotations of the Bloch sphere around a given axis by angle θ.
+
+\subsection{Example}
+Verify the identity:
+\[
+HZH = X.
+\]
+Compute HZH and show it equals the X matrix.
+
+\subsection{In-Class Exercises}
+1. Apply H followed by X to \(|0\rangle\) and compute the resulting state.  
+2. Compute the effect of S and T on the states |+⟩ and |−⟩.  
+3. Discuss how a rotation gate Rx(π/2) moves a state on the Bloch sphere.
+
+\subsection{Homework}
+1. Prove that the Pauli matrices X, Y, Z are Hermitian and unitary.  
+2. Show that H^2 = I.  
+3. Construct a sequence of gates that maps |0⟩ to |1⟩ via an intermediate superposition.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit
+
+qc = QuantumCircuit(1, 1)
+
+# Prepare |0>, apply H then Z then H
+qc.h(0)
+qc.z(0)
+qc.h(0)
+qc.measure(0, 0)
+
+print(qc)
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Matrix table listing X, Y, Z, H, S, T.
+\item Bloch sphere diagrams showing how X, Y, Z act as 180° rotations around axes.
+\item A simple circuit diagram illustrating sequences like H → Z → H.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 5: Multi-Qubit States, Entanglement and Bell States}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Work with multi-qubit systems using tensor products.
+\item Describe entangled states, especially Bell states.
+\item Understand the difference between separable and entangled states.
+\item Construct simple entangling circuits using CNOT and H gates.
+
+\subsection{Core Concepts / Outline}
+\item Tensor products of Hilbert spaces.
+\item Computational basis for multiple qubits (|00⟩, |01⟩, |10⟩, |11⟩, ...).
+\item Separable vs. entangled states.
+\item Bell states and their preparation circuits.
+\item Two-qubit gates: CNOT, CZ, SWAP.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+For two qubits, the state space is 4-dimensional. The basis states are:
+\[
+|00\rangle, |01\rangle, |10\rangle, |11\rangle.
+\]
+A state is **separable** if it can be written as \(|\psi\rangle_A \otimes |\phi\rangle_B\). States that cannot be written this way are **entangled**.  
+
+The **Bell states** are maximally entangled two-qubit states, such as:
+\[
+|\Phi^+\rangle = \frac{|00\rangle + |11\rangle}{\sqrt{2}}.
+\]
+
+\subsection{Example}
+Prepare the Bell state \(|\Phi^+\rangle\) by:
+1. Starting with |00⟩.
+2. Applying H on qubit 0.
+3. Applying CNOT with control qubit 0 and target qubit 1.
+
+\subsection{In-Class Exercises}
+1. Show that \(|\Phi^+\rangle\) is not separable.  
+2. Write the states for other Bell states: \(|\Phi^-\rangle\), \(|\Psi^+\rangle\), \(|\Psi^-\rangle\).  
+3. Use the CNOT gate to create different Bell states by changing the input.
+
+\subsection{Homework}
+1. Prove that no single-qubit gates acting independently on each qubit can create entanglement starting from a product state.  
+2. Compute measurement correlations for Bell states in the computational basis.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit, Aer, execute
+
+qc = QuantumCircuit(2, 2)
+qc.h(0)       # Create superposition on qubit 0
+qc.cx(0, 1)   # Entangle qubit 0 and 1
+qc.measure([0,1], [0,1])
+
+backend = Aer.get_backend('qasm_simulator')
+result = execute(qc, backend, shots=1024).result()
+print("Counts:", result.get_counts())
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Circuit diagram for generating |Φ⁺⟩:
+\begin{minted}[fontsize=\small]{text}
+  q0: ──H──■──
+           │
+  q1: ─────X──
+\end{minted}
+\item Diagram showing entangled pairs as “linked” qubits.
+\item Table comparing separable and entangled states.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 6: Measurement, Born Rule and Noise}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Explain the Born rule and measurement outcomes.
+\item Describe projective measurements in the computational basis.
+\item Understand the concept of decoherence and basic noise models.
+\item Use Qiskit to simulate noisy quantum circuits.
+
+\subsection{Core Concepts / Outline}
+\item Born rule for measurement probabilities.
+\item Projective measurements and post-measurement states.
+\item Measurement in different bases.
+\item Noise channels: bit-flip, phase-flip, depolarizing (conceptual).
+\item Decoherence and T1/T2 times (high level).
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Measurement in quantum mechanics is probabilistic. For state:
+\[
+|\psi\rangle = \alpha|0\rangle + \beta|1\rangle,
+\]
+measuring in the computational basis yields 0 with probability \(|\alpha|^2\) and 1 with probability \(|\beta|^2\). After measurement, the state collapses to the corresponding basis state.  
+
+Real quantum systems are open and interact with their environment, causing **decoherence**. Noise can be modeled with channels like bit-flip or depolarizing channels.
+
+\subsection{Example}
+Simulate repeated measurements of the state (|0⟩ + |1⟩)/√2 and show that frequencies approach 50–50 as shots increase.
+
+\subsection{In-Class Exercises}
+1. Given a state, compute measurement probabilities and post-measurement states.  
+2. Discuss qualitatively how decoherence affects superpositions and entanglement.
+
+\subsection{Homework}
+1. Read about T1 and T2 times for qubits and summarize in half a page.  
+2. Consider a simple noise model (bit-flip with probability p) and reason its impact on a single-qubit state.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit, Aer, execute
+
+qc = QuantumCircuit(1,1)
+qc.h(0)
+qc.measure(0,0)
+
+backend = Aer.get_backend('qasm_simulator')
+result = execute(qc, backend, shots=2048).result()
+print(result.get_counts())
+\end{minted}
+
+(Optionally extend with Qiskit Aer noise models if desired.)
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Probability tree diagrams showing measurement outcomes.
+\item Bloch sphere with arrows showing “shrinking” of the vector due to decoherence.
+\item Circuit with measurement symbol at the end of a wire.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 7: Quantum Circuit Model and Universality}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Describe the quantum circuit model of computation.
+\item Understand how complex unitaries are built from basic gate sets.
+\item Know what it means for a gate set to be universal.
+\item Express simple algorithms as quantum circuits.
+
+\subsection{Core Concepts / Outline}
+\item Quantum circuit as a sequence of gates.
+\item Wires as qubits, boxes as gates, measurement symbols.
+\item Universality and standard gate sets {H, T, CNOT} etc.
+\item Circuit depth and width.
+\item Decomposition of multi-qubit unitaries into 1- and 2-qubit gates (conceptual).
+
+\subsection{Theory & Intuition}
+\end{itemize}
+The **circuit model** is the central paradigm of quantum computation. It is analogous to classical logic circuits but with unitary gates operating on qubits. A finite set of gates is **universal** if any unitary can be approximated by some circuit built from those gates.
+
+\subsection{Example}
+Show that {H, T, CNOT} is a universal gate set (conceptually: H and T generate arbitrary single-qubit unitaries, plus CNOT for entanglement).
+
+\subsection{In-Class Exercises}
+1. Draw the circuit for a simple algorithm (e.g., preparing a Bell state).  
+2. Discuss how you would implement a 3-qubit unitary using only 1- and 2-qubit gates.
+
+\subsection{Homework}
+1. Read a section about universality in your main text and write a summary.  
+2. Sketch a circuit that takes |00⟩ to (|00⟩ + |11⟩)/√2 and then measures both qubits.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit
+
+qc = QuantumCircuit(2, 2)
+qc.h(0)
+qc.cx(0, 1)
+qc.measure([0,1],[0,1])
+print(qc.draw())
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item General block diagram of a quantum circuit: input state → sequence of gates → measurement.
+\item Example circuits for Bell state and small algorithms.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 8: Deutsch and Deutsch–Jozsa Algorithms}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item State the Deutsch problem and the Deutsch–Jozsa problem.
+\item Describe the oracle model of computation.
+\item Implement the Deutsch–Jozsa algorithm as a circuit.
+\item Understand the advantage over classical deterministic algorithms.
+
+\subsection{Core Concepts / Outline}
+\item Oracle functions f: {0,1}^n → {0,1}.
+\item Constant vs. balanced functions.
+\item Deutsch algorithm (n = 1 case).
+\item Deutsch–Jozsa algorithm (general n).
+\item Query complexity and quantum advantage.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+The Deutsch–Jozsa algorithm determines whether a function f is constant or balanced with **one oracle query** in the quantum model, whereas any deterministic classical algorithm may require up to \(2^{n-1} + 1\) queries.
+
+The algorithm:
+1. Prepare |0...0⟩|1⟩.  
+2. Apply H to all qubits.  
+3. Apply oracle U_f.  
+4. Apply H again to the first n qubits.  
+5. Measure the first n qubits.
+
+\subsection{Example}
+Implement the Deutsch algorithm for a single-bit function and verify that measurement outcomes distinguish constant and balanced functions.
+
+\subsection{In-Class Exercises}
+1. Write down the circuit for Deutsch–Jozsa with n = 2.  
+2. Discuss the number of oracle queries required in quantum vs. classical settings.
+
+\subsection{Homework}
+1. Show mathematically that constant functions yield measurement outcome |0...0⟩ in the Deutsch–Jozsa algorithm.  
+2. Implement a 2-qubit version in Qiskit with a chosen oracle.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit, Aer, execute
+
+def deutsch_oracle(is_constant):
+    qc = QuantumCircuit(2)
+    if is_constant:
+        qc.x(1)  # Example constant oracle
+    else:
+        qc.cx(0,1)  # Example balanced oracle
+    return qc.to_gate(label="Uf")
+
+qc = QuantumCircuit(2,1)
+qc.x(1)
+qc.h([0,1])
+
+oracle = deutsch_oracle(is_constant=False)
+qc.append(oracle, [0,1])
+
+qc.h(0)
+qc.measure(0,0)
+
+backend = Aer.get_backend('qasm_simulator')
+result = execute(qc, backend, shots=1024).result()
+print(result.get_counts())
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Circuit diagram for Deutsch algorithm (n=1).
+\item Circuit diagram for Deutsch–Jozsa (n general) with oracle block U_f.
+\item Table showing constant vs. balanced examples.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 9: Grover’s Search Algorithm}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Explain the unstructured search problem.
+\item Understand the idea of amplitude amplification.
+\item Describe the Grover iterate (oracle + diffusion).
+\item Implement Grover’s algorithm for small N using Qiskit.
+
+\subsection{Core Concepts / Outline}
+\item Search problem over N = 2^n items.
+\item Oracle marking the “good” state(s).
+\item Grover operator G = (2|s⟩⟨s| − I) · (I − 2|ω⟩⟨ω|).
+\item Optimal number of iterations O(√N).
+\item Behavior of amplitudes over iterations.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Grover’s algorithm provides a **quadratic speedup** over classical search. It repeatedly “rotates” the state vector in the 2D subspace spanned by the marked state and the uniform superposition, increasing the amplitude of the target state.
+
+\subsection{Example}
+Apply Grover’s algorithm to a 2-qubit system (N = 4) with exactly one marked element, and track the amplitudes by hand or numerically.
+
+\subsection{In-Class Exercises}
+1. For N = 4, compute how many Grover iterations are optimal.  
+2. Analyze how amplitudes change during one full Grover iteration.
+
+\subsection{Homework}
+1. Implement Grover’s algorithm in Qiskit for N = 4 and verify success probabilities.  
+2. Write a short explanation of why the algorithm fails if you over-iterate.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit, Aer, execute
+
+# Example: Grover for 2-qubit search space with state |11> marked
+qc = QuantumCircuit(2,2)
+
+# Step 1: prepare uniform superposition
+qc.h([0,1])
+
+# Step 2: oracle marking |11>
+qc.cz(0,1)  # phase flip for |11>
+
+# Step 3: diffusion operator
+qc.h([0,1])
+qc.x([0,1])
+qc.h(1)
+qc.cx(0,1)
+qc.h(1)
+qc.x([0,1])
+qc.h([0,1])
+
+qc.measure([0,1],[0,1])
+
+backend = Aer.get_backend('qasm_simulator')
+result = execute(qc, backend, shots=1024).result()
+print(result.get_counts())
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Geometric picture: rotation in a 2D subspace between |s⟩ and |ω⟩.
+\item Circuit diagram for Grover’s algorithm with oracle block and diffusion block.
+\item Plot of success probability vs. number of iterations (conceptual).
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 10: Shor’s Algorithm and Period Finding}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Understand the high-level structure of Shor’s algorithm.
+\item Explain the role of period finding and modular exponentiation.
+\item Recognize the use of the Quantum Fourier Transform (QFT).
+\item Describe why Shor’s algorithm threatens classical public-key cryptography.
+
+\subsection{Core Concepts / Outline}
+\item Integer factorization problem.
+\item Period finding as the core quantum subroutine.
+\item Modular exponentiation circuit (black-box view).
+\item QFT and its role in extracting the period.
+\item Classical post-processing to obtain factors.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Shor’s algorithm factors a composite integer N in polynomial time, using a quantum subroutine to find the period r of the function:
+\[
+f(x) = a^x \mod N.
+\]
+The quantum part prepares a superposition over x, computes f(x) in a second register, and uses the QFT to extract information about r. Classical algorithms then compute the gcd to derive non-trivial factors of N.
+
+\subsection{Example}
+Work through a toy example of factoring N = 15 with a chosen base a (e.g., a = 2), tracing the period-finding idea (without fully building the full circuit).
+
+\subsection{In-Class Exercises}
+1. Given N and a, compute f(x) = a^x mod N for small x and guess the period r.  
+2. Discuss qualitatively why period finding can be done efficiently quantumly but not classically (known algorithms).
+
+\subsection{Homework}
+1. Read a simplified explanation of Shor’s algorithm from a textbook or online source and write a 1-page summary.  
+2. Implement the QFT on a small number of qubits (3 or 4) in Qiskit as a separate exercise (see next session).
+
+\subsection{Python/Qiskit Coding}
+(Focus on QFT building blocks, see Session 11 for concrete code.)
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Block diagram of Shor’s algorithm showing classical and quantum components.
+\item Illustration of the function f(x) = a^x mod N as a periodic signal.
+\item Circuit diagram showing registers and QFT block (high level).
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 11: Quantum Fourier Transform (QFT)}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Define the Quantum Fourier Transform (QFT).
+\item Write down the QFT circuit for n qubits.
+\item Implement QFT and its inverse in Qiskit.
+\item Understand the role of QFT in algorithms like Shor’s and phase estimation.
+
+\subsection{Core Concepts / Outline}
+\item Definition of QFT on N = 2^n states.
+\item Decomposition of QFT into Hadamard and controlled-phase gates.
+\item Complexity O(n^2) of QFT circuit.
+\item Inverse QFT and its implementation.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+The QFT on N = 2^n basis states is defined by:
+\[
+\text{QFT} \lvert x \rangle = \frac{1}{\sqrt{N}}\sum_{k=0}^{N-1} e^{2\pi i xk/N} \lvert k \rangle.
+\]
+The circuit can be decomposed into a sequence of H and controlled-phase gates, along with swaps to reverse qubit order.
+
+\subsection{Example}
+Write the QFT on 2 qubits explicitly and compare with the matrix decomposition.
+
+\subsection{In-Class Exercises}
+1. Draw the QFT circuit for n = 3 qubits.  
+2. Discuss how to implement the inverse QFT by reversing the order of gates and conjugating phase angles.
+
+\subsection{Homework}
+1. Implement QFT for n = 3 qubits in Qiskit and test it on computational basis states.  
+2. Explore approximating QFT by omitting some small-angle controlled-phase gates.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit
+import numpy as np
+
+def qft(n):
+    qc = QuantumCircuit(n)
+    for j in range(n):
+        qc.h(j)
+        for k in range(j+1, n):
+            qc.cp(np.pi / (2**(k-j)), k, j)
+    # Swap qubits to reverse order
+    for i in range(n//2):
+        qc.swap(i, n-1-i)
+    return qc
+
+qc = qft(3)
+print(qc.draw())
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Circuit diagram of QFT for 3 qubits.
+\item Table comparing classical FFT and quantum QFT (structure and complexity).
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 12: Quantum Error Correction (QEC)}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Explain why quantum error correction is necessary.
+\item Describe the basic idea behind redundancy and encoding.
+\item Understand simple codes such as the 3-qubit bit-flip code conceptually.
+\item Recognize the notions of syndrome measurement and recovery.
+
+\subsection{Core Concepts / Outline}
+\item Fragility of quantum information and no-cloning theorem.
+\item Bit-flip and phase-flip errors.
+\item Encoding logical qubits into multiple physical qubits.
+\item Syndrome measurement using ancilla qubits.
+\item High-level description of Shor code or Steane code.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Quantum error correction encodes a logical qubit into multiple physical qubits, so that errors affecting a subset of the qubits can be detected and corrected. Although we cannot measure the state directly without collapsing it, we can measure **syndromes**—parity checks that reveal where an error occurred without revealing the logical state.
+
+\subsection{Example}
+Discuss the 3-qubit bit-flip code which encodes:
+\[
+|0_L\rangle = |000\rangle,\quad
+|1_L\rangle = |111\rangle.
+\]
+Explain how majority voting can correct a single bit-flip error.
+
+\subsection{In-Class Exercises}
+1. Show how the bit-flip code corrects an X error on any one qubit.  
+2. Discuss why phase-flip errors also need to be corrected, and outline the phase-flip code.
+
+\subsection{Homework}
+1. Read about Shor’s 9-qubit code and summarize its structure.  
+2. Write a conceptual explanation of syndrome measurement without collapsing the logical state.
+
+\subsection{Python/Qiskit Coding}
+(Qiskit Ignis or newer tools may be used; for simplicity, you may just simulate errors and majority voting in Python.)
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Encoding diagram for the 3-qubit bit-flip code.
+\item Syndrome measurement circuit sketch.
+\item Conceptual block diagram of an error-correcting cycle.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 13: Variational Quantum Algorithms: VQE & QAOA}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Explain the idea behind variational (hybrid) quantum-classical algorithms.
+\item Describe the Variational Quantum Eigensolver (VQE) and its workflow.
+\item Understand QAOA as an example of a variational algorithm for optimization.
+\item Implement a simple VQE-like circuit in Qiskit.
+
+\subsection{Core Concepts / Outline}
+\item NISQ era and limitations of deep circuits.
+\item Parameterized quantum circuits (ansätze).
+\item Classical optimizer loop (gradient-free or gradient-based).
+\item VQE for approximating ground-state energies.
+\item QAOA for combinatorial optimization.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Variational algorithms use parameterized circuits:
+\[
+|\psi(\vec{\theta})\rangle = U(\vec{\theta})|0...0\rangle,
+\]
+and a classical optimizer that updates parameters \(\vec{\theta}\) to minimize a cost function, often an expectation value of a Hamiltonian.
+
+\subsection{Example}
+Build a simple 1- or 2-qubit variational circuit with a few rotation gates and use a classical optimizer to minimize the expectation of Z on one qubit.
+
+\subsection{In-Class Exercises}
+1. Sketch the workflow of VQE (quantum subroutine + classical optimizer).  
+2. Discuss why variational circuits can be more noise-resilient than deep non-parameterized circuits.
+
+\subsection{Homework}
+1. Implement a simple variational circuit in Qiskit and manually tune parameters to minimize a simple cost.  
+2. Read a short article or paper on VQE and summarize it.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import QuantumCircuit, Aer, execute
+import numpy as np
+
+def ansatz(theta):
+    qc = QuantumCircuit(1,1)
+    qc.ry(theta, 0)
+    qc.measure(0,0)
+    return qc
+
+backend = Aer.get_backend('qasm_simulator')
+
+def expectation(theta):
+    qc = ansatz(theta)
+    result = execute(qc, backend, shots=1024).result()
+    counts = result.get_counts()
+    # Expectation of Z: P(0) - P(1)
+    p0 = counts.get('0', 0) / 1024
+    p1 = counts.get('1', 0) / 1024
+    return p0 - p1
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Workflow diagram: quantum device ↔ classical optimizer loop.
+\item Simple parameterized circuit with RY(θ) gates.
+\item Conceptual figure illustrating a cost landscape and parameter updates.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 14: Quantum Hardware and NISQ Era}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Identify main physical platforms for quantum hardware.
+\item Describe superconducting qubits, trapped ions, and photonic qubits at a high level.
+\item Understand what NISQ means and its implications.
+\item Recognize hardware constraints: decoherence times, gate errors, connectivity.
+
+\subsection{Core Concepts / Outline}
+\item Superconducting qubits (e.g., transmons).
+\item Trapped ion qubits.
+\item Photonic qubits.
+\item NISQ devices: noisy, intermediate-scale quantum.
+\item Hardware metrics: T1, T2, gate fidelity, connectivity graphs.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+Quantum hardware implementations differ in:
+\begin{itemize}
+\item How qubits are physically realized.
+\item How gates are implemented (microwave pulses, laser interactions, optical elements).
+\item Their strengths and weaknesses: scalability, coherence times, gate speeds.
+
+\end{itemize}
+The NISQ era is characterized by devices with tens to a few hundred qubits, limited coherence, and noise—too small and noisy for full fault-tolerant computation, but large enough to explore interesting algorithms.
+
+\subsection{Example}
+Compare superconducting qubits and trapped ions in terms of:
+\begin{itemize}
+\item Typical coherence times.
+\item Gate speed.
+\item Connectivity between qubits.
+
+\subsection{In-Class Exercises}
+\end{itemize}
+1. Students research one hardware platform and present a short summary.  
+2. Discuss what kinds of algorithms might be feasible on NISQ hardware.
+
+\subsection{Homework}
+1. Choose a specific quantum hardware vendor or platform (e.g., IBM, IonQ, Xanadu) and write a short report about their technology.  
+2. Explain why error correction is challenging yet essential for scalable quantum computers.
+
+\subsection{Python/Qiskit Coding}
+\begin{minted}[fontsize=\small]{python}
+from qiskit import IBMQ
+
+# (If using IBM Quantum Experience)
+# IBMQ.load_account()
+# provider = IBMQ.get_provider()
+# backend = provider.get_backend('ibmq_qasm_simulator')
+# print(backend.configuration())
+\end{minted}
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Comparison table of different hardware platforms.
+\item Conceptual diagram of a superconducting qubit circuit or ion trap.
+\item Illustration of a connectivity graph for a real device.
+
+
+\end{itemize}
+\hrule\medskip
+
+\section{Session 15: Final Project Design and Presentations}
+
+
+\subsection{Learning Objectives}
+By the end of this session, students should be able to:
+\begin{itemize}
+\item Design a small quantum algorithm or experiment from scratch.
+\item Translate a problem statement into a quantum circuit and/or variational ansatz.
+\item Implement, simulate, and analyze results using Qiskit.
+\item Present their project clearly and critically discuss limitations.
+
+\subsection{Core Concepts / Outline}
+\item Project design process:
+\item Choose a problem.
+\item Select appropriate quantum model/algorithm.
+\item Design circuit and simulation strategy.
+\item Analysis and interpretation of results.
+\item Limitations due to noise, qubit count, and depth.
+\item Future directions and open questions.
+
+\subsection{Theory & Intuition}
+\end{itemize}
+This is a synthesis session where students bring together:
+\begin{itemize}
+\item Theoretical understanding of qubits, gates, circuits, and algorithms.
+\item Practical skills in Qiskit and simulation.
+\item Awareness of hardware constraints and noise.
+
+\end{itemize}
+Projects can be algorithm-focused (e.g., implementing Grover or VQE for a particular toy problem) or concept-focused (e.g., exploring the effect of noise on entanglement).
+
+\subsection{Example Project Ideas}
+\begin{itemize}
+\item Implement Grover’s algorithm for a specific search problem of size N = 8 or 16.
+\item Build a small VQE circuit to approximate the ground-state energy of a 2-qubit Hamiltonian.
+\item Explore decoherence by applying simple noise models and measuring entanglement decay.
+
+\subsection{In-Class Activities}
+\item Students present short project proposals and receive feedback.
+\item Work in small groups to refine algorithms and circuits.
+\item Live debugging of circuits and code with instructor guidance.
+
+\subsection{Homework / Final Assignment}
+\item Complete a mini-project:
+\item 4–8 pages report in LaTeX or Markdown, including motivation, method, results, and discussion.
+\item Qiskit code as an appendix or GitHub repository.
+\item Prepare a short presentation (5–10 minutes) summarizing the project.
+
+\subsection{Python/Qiskit Coding}
+\end{itemize}
+(Project-dependent; students are expected to integrate all previous knowledge and examples.)
+
+\subsection{Suggested Figures}
+\begin{itemize}
+\item Flowchart of quantum project workflow: Problem → Algorithm → Circuit → Simulation → Results.
+\item Circuit diagrams from students’ projects (e.g., Grover, VQE, Bell tests).
+\item Plots of measurement statistics or cost function vs. iteration for variational algorithms.
+
+
+\end{itemize}
+\hrule\medskip
+
+\end{document}
