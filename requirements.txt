@@ -1,0 +1,4 @@
+
+pip install qiskit qiskit-aer qiskit-machine-learning 
+pip install qiskit-ibm-runtime pytket pytket-qiskit
+pip install pennylane pennylane-qiskit torchquantum qiskit-algorithms
