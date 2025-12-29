@@ -1,4 +1,12 @@
 
 pip install qiskit qiskit-aer qiskit-machine-learning 
 pip install qiskit-ibm-runtime pytket pytket-qiskit
+
+conda install -y -c pytorch pytorch torchvision torchaudio cpuonly
+
 pip install pennylane pennylane-qiskit torchquantum qiskit-algorithms
+pip install optuna wandb ray[tune]
+
+pip install rich ipywidgets networkx sympy joblib
+
+jupyter labextension enable @jupyter-widgets/jupyterlab-manager
