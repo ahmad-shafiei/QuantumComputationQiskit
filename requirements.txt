@@ -1,4 +1,5 @@
 
+qcomputing
 pip install qiskit qiskit-aer qiskit-machine-learning 
 pip install qiskit-ibm-runtime pytket pytket-qiskit
 
